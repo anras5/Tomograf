@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, url_for
 from werkzeug.utils import secure_filename
 
 from flaskr.src.forms import PhotoForm
@@ -21,9 +21,9 @@ def create_app():
             f = form.photo.data
             filename = secure_filename(f.filename)
             f.save(os.path.join(
-                os.path.dirname(app.instance_path), 'temporary_images', filename
+               'flaskr', 'static', 'temporary_images', filename
             ))
-            return redirect("/")
+            return render_template("index.html", filename=filename)
         return render_template("index.html", form=form)
 
     return app

@@ -2,4 +2,4 @@ venv
 __pycache__
 .ipynb_checkpoints/
 .idea/
-temporary_images/
+flaskr/static/temporary_images/
