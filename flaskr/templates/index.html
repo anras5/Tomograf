@@ -27,15 +27,27 @@
             <div class="row">
                 <div class="col-md-4">
                     <p>Obraz wejściowy:</p>
-                    <img src="{{ url_for('static', filename='temporary_images/' + filename) }}" alt="users photo">
+                    <div class="img-box">
+                        <img src="{{ url_for('static', filename='temporary_images/' + filename) }}"
+                             alt="users photo"
+                             class="img-fluid rounded">
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <p>Wizualizacja sinogramu:</p>
-                    <img src="{{ url_for('static', filename='temporary_images/internal/sinogram.jpg') }}" alt="">
+                    <div class="img-box">
+                        <img src="{{ url_for('static', filename='temporary_images/internal/sinogram.png') }}"
+                             alt="sinogram photo"
+                             class="img-fluid rounded">
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <p>Obraz wyjściowy:</p>
-                    <img src="{{ url_for('static', filename='temporary_images/internal/output.jpg') }}" alt="">
+                    <div class="img-box">
+                        <img src="{{ url_for('static', filename='temporary_images/internal/output.png') }}"
+                             alt="result photo"
+                             class="img-fluid rounded">
+                    </div>
                 </div>
             </div>
         </div>
