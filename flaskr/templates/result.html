@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+    <h1 class="mt-2">TOMOGRAF</h1>
+
+    <p><b>Wynik użycia tomografu:</b></p>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <p>Obraz wejściowy:</p>
+                <div class="img-box">
+                    <img src="{{ url_for('static', filename='temporary_images/' + uid + '/' + input_name) }}"
+                         alt="users photo"
+                         class="img-fluid rounded">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <p>Wizualizacja sinogramu:</p>
+                <div class="img-box">
+                    <img src="{{ url_for('static', filename='temporary_images/' + uid + '/sinogram.png') }}"
+                         alt="sinogram photo"
+                         class="img-fluid rounded">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <p>Obraz wyjściowy:</p>
+                <div class="img-box">
+                    <img src="{{ url_for('static', filename='temporary_images/' + uid + '/output.png') }}"
+                         alt="result photo"
+                         class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p class="mt-5">Aby przesłać kolejny obraz, kliknij poniższy przycisk:</p>
+    <a href="{{ url_for('home') }}" class="btn btn-success">Powrót</a>
+
+
+{% endblock %}
