@@ -23,5 +23,5 @@ body {
 }
 
 .img-box img {
-    object-fit: fill;
+    object-fit: contain;
 }

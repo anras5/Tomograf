@@ -15,7 +15,8 @@ EXTENT = 170 * np.pi / 180  # jaka jest rozpiętość kątowa detectors
 def calculate_sinogram(input_path, sinogram_path, result_path):
     sinogram = np.zeros((int(2 * np.pi / INTERVAL), DETECTORS_NUMBER))
     image = imread(input_path)
-    image = color.rgb2gray(image)
+    if image.shape == 3:
+        image = color.rgb2gray(image)
     X = image.shape[0] / 2  # współrzędna X środka obrazka
     Y = image.shape[1] / 2  # współrzędna Y środka obrazka
     R = np.sqrt(X ** 2 + Y ** 2)  # długość promienia okręgu, po którym będzie "poruszać się" emitter
@@ -51,11 +52,12 @@ def calculate_sinogram(input_path, sinogram_path, result_path):
             else:
                 sinogram[emitter_idx][detector_idx] = 0
 
-    # zapisujemy sinogram do pliku (najpierw normalizujemy, później zapisujemy
+    # zapisujemy sinogram do pliku - najpierw normalizujemy, później zapisujemy
     sinogram_scaled = (255.0 / np.amax(sinogram)) * sinogram
     sinogram_scaled = sinogram_scaled.astype(np.uint8)
     sinogram_image = Image.fromarray(sinogram_scaled.T, mode='L')
-    sinogram_image.save(sinogram_path)
+    sinogram_resized = sinogram_image.resize(image.shape, resample=Image.NEAREST)
+    sinogram_resized.save(sinogram_path)
 
     sinogram_f = filter_h(sinogram)
     result = np.zeros(image.shape)
