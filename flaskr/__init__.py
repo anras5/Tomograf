@@ -37,8 +37,6 @@ def create_app():
 
             # make paths to files
             input_path = os.path.join(users_directory_path, filename)
-            sinogram_path = os.path.join(users_directory_path, 'sinogram.png')
-            output_path = os.path.join(users_directory_path, 'output.png')
 
             # save input file
             f.save(input_path)
@@ -48,20 +46,26 @@ def create_app():
             interval = form.interval.data
             detectors_number = form.detectors_number.data
             extent = form.extent.data
+            gradual = form.gradual.data
 
             # create sinogram and output files
-            calculate_sinogram(input_path, sinogram_path, output_path, interval, detectors_number, extent)
+            gradual_number = calculate_sinogram(input_path, users_directory_path,
+                                                interval, detectors_number, extent,
+                                                gradual)
 
-            return redirect(url_for('result', uid=users_uid, input_name=filename))
+            return redirect(url_for('result', uid=users_uid, input_name=filename, gradual_number=gradual_number))
         return render_template("index.html", form=form)
 
     @app.route("/result")
     def result():
         uid = request.args.get('uid')
         input_name = request.args.get('input_name')
-        directory = os.path.join('flaskr', 'static', 'temporary_images', uid)
-        if uid and input_name and os.path.exists(directory):
-            return render_template('result.html', uid=uid, input_name=input_name)
+        gradual_number = request.args.get('gradual_number', type=int)
+        if uid and input_name and gradual_number is not None:
+            directory = os.path.join('flaskr', 'static', 'temporary_images', uid)
+            if os.path.exists(directory):
+                return render_template('result.html', uid=uid, input_name=input_name, gradual_number=gradual_number)
+        flash("Brak odpowiednich parametrów", 'error')
         return redirect(url_for('home'))
 
     return app

@@ -9,24 +9,35 @@
     <div class="container form">
         <form method="post" class="row g-3" enctype="multipart/form-data" id="photoForm">
             {{ form.hidden_tag() }}
-            <div class="col-md-4">
-                {{ form.interval.label(class_='form-label') }}
-                {{ form.interval(class_='form-control') }}
+            <div class="row my-3">
+                <div class="col-md-4">
+                    {{ form.interval.label(class_='form-label') }}
+                    {{ form.interval(class_='form-control', value=5) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.detectors_number.label(class_='form-label') }}
+                    {{ form.detectors_number(class_='form-control', value=150) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.extent.label(class_='form-label') }}
+                    {{ form.extent(class_='form-control', value=170) }}
+                </div>
             </div>
-            <div class="col-md-4">
-                {{ form.detectors_number.label(class_='form-label') }}
-                {{ form.detectors_number(class_='form-control') }}
+            <div class="row my-3">
+                <div class="col-md-6 mx-auto">
+                    {{ form.photo.label(class_='form-label') }}
+                    {{ form.photo(class_='form-control') }}
+                </div>
             </div>
-            <div class="col-md-4">
-                {{ form.extent.label(class_='form-label') }}
-                {{ form.extent(class_='form-control') }}
+            <div class="row my-3">
+                {{ form.gradual.label(class_='form-label') }}
+                {{ form.gradual() }}
             </div>
-            <div class="col-md-6 mx-auto">
-                {{ form.photo.label(class_='form-label') }}
-                {{ form.photo(class_='form-control') }}
-            </div>
-            <div class="col-12" id="submit-btn">
-                {{ form.submit(class_='btn btn-success') }}
+
+            <div class="row my-2">
+                <div class="col-12 mx-auto" id="submit-btn">
+                    {{ form.submit(class_='btn btn-success') }}
+                </div>
             </div>
         </form>
         <div class="col-12 d-none mt-3" id="spinner">

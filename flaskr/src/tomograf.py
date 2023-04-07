@@ -1,3 +1,5 @@
+import os.path
+
 import numpy as np
 from matplotlib.image import imread
 from PIL import Image
@@ -7,8 +9,9 @@ from flaskr.src.bresenham import bresenham_algorithm
 from flaskr.src.filters import filter_h
 
 
-def calculate_sinogram(input_path: str, sinogram_path: str, result_path: str,
-                       interval: int, detectors_number: int, extent: int):
+def calculate_sinogram(input_path: str, output_dir: str,
+                       interval: int, detectors_number: int, extent: int,
+                       gradual: bool):
     """Calculates sinogram from input file and saves a sinogram visualization in `sinogram_path`.
     Then from this sinogram, calculates an output file and saves it in `result_path`.
     Function uses the cone method.
@@ -17,21 +20,38 @@ def calculate_sinogram(input_path: str, sinogram_path: str, result_path: str,
     ----------
     input_path: str
         Path of the input file
-    sinogram_path: str
-        Path of the sinogram visualization
-    result_path: str
-        Path of the output file
+    output_dir: str
+        Path to the directory of the output files. Will contain sinogram (gradual sinograms)
+        and output file (gradual output files)
     interval: int
         The angle by which the emitter is to be moved
     detectors_number: int
         How many detectors will be used
     extent: int
         The angular span of the detectors
+    gradual: bool
+        if True every step will be saved in a separate file
+
+    Returns
+    -------
+    gradual_number: int
+        Number of files saved if `gradual` is True.
+        If gradual is False, `gradual_number` is 0.
     """
 
+    # przygotowujemy odpowiednie ścieżki do plików
+    sinogram_path = os.path.join(output_dir, 'sinogram.png')
+    result_path = os.path.join(output_dir, 'output.png')
+    if gradual:
+        os.makedirs(os.path.join(output_dir, 'gradual_sinogram'))
+        os.makedirs(os.path.join(output_dir, 'gradual_result'))
+
+    # zmieniamy parametry przekazane w funkcji ze stopni na radiany
     interval = interval * np.pi / 180  # Co jaki kąt przesuwany jest emitter po okręgu
     extent = extent * np.pi / 180  # jaka jest rozpiętość kątowa detectors
 
+    # inicjalizacja zmiennych używanych później
+    gradual_number = 0
     sinogram = np.zeros((int(2 * np.pi / interval), detectors_number))
     image = imread(input_path)
     # TODO - linijka niżej czasami sprawia problemy (przy niektórych zdjęciach program daje error)
@@ -40,9 +60,13 @@ def calculate_sinogram(input_path: str, sinogram_path: str, result_path: str,
     Y = image.shape[1] / 2  # współrzędna Y środka obrazka
     R = np.sqrt(X ** 2 + Y ** 2)  # długość promienia okręgu, po którym będzie "poruszać się" emitter
 
+    # ---------------------------------------------------------------------------------------------------------------- #
+    # OBLICZANIE SINOGRAMU
+    # ---------------------------------------------------------------------------------------------------------------- #
     # W zewnętrznej pętli wyznaczamy kolejne pozycje emitera, będą one o 0 do 2pi z odstępem co interval
     for emitter_idx, emitter_angle in zip(range(int(2 * np.pi / interval)), np.arange(0, 2 * np.pi, interval)):
-        # wyznaczamy współrzędne (x, y) emittera na podstawie wartości X, Y oraz R i kąta (emitter_angle) z danej interacji
+        # wyznaczamy współrzędne (x, y) emittera na podstawie wartości X, Y oraz R i kąta (emitter_angle) z danej
+        # interacji
         emitter_coordinates = [int(X + R * np.cos(emitter_angle)), int(Y + R * np.sin(emitter_angle))]
 
         # W wewnętrznej pętli wyznaczamy pozycje detectorów
@@ -62,14 +86,27 @@ def calculate_sinogram(input_path: str, sinogram_path: str, result_path: str,
             # iterujemy po punktach wyznaczonych przed chwilą przy pomocy algorytmu bresenhama
             for point in line_points:
                 if 0 <= point[0] < image.shape[0] and 0 <= point[1] < image.shape[1]:
-                    # jeżeli punkt należy do obrazka dodajemy 1 do licznika punktów i zwiększamy wartość sumy o wartość z punktu na obrazku wejściowym
+                    # jeżeli punkt należy do obrazka dodajemy 1 do licznika punktów i zwiększamy wartość sumy
+                    # o wartość z punktu na obrazku wejściowym
                     points_on_line += 1
                     values_sum += image[point[0]][point[1]]
             if points_on_line > 0:
-                # do sinogramu w odpowiednią komórkę wstawiamy wartość sumy uzyskaną w pętli powyżej podzieloną przez liczbę punktów
+                # do sinogramu w odpowiednią komórkę wstawiamy wartość sumy uzyskaną w pętli powyżej podzieloną
+                # przez liczbę punktów
                 sinogram[emitter_idx][detector_idx] = values_sum / points_on_line
             else:
                 sinogram[emitter_idx][detector_idx] = 0
+
+        if gradual:
+            # zwiększamy licznik plików
+            gradual_number += 1
+            # zapisujemy tymczasowy sinogram do pliku
+            sinogram_gradual_path = os.path.join(output_dir, 'gradual_sinogram', f'sinogram{emitter_idx}.png')
+            sinogram_gradual_scaled = (255.0 / np.amax(sinogram)) * sinogram
+            sinogram_gradual_scaled = sinogram_gradual_scaled.astype(np.uint8)
+            sinogram_gradual_image = Image.fromarray(sinogram_gradual_scaled.T, mode='L')
+            sinogram_gradual_resized = sinogram_gradual_image.resize(image.shape, resample=Image.NEAREST)
+            sinogram_gradual_resized.save(sinogram_gradual_path)
 
     # zapisujemy sinogram do pliku - najpierw normalizujemy, później zapisujemy
     sinogram_scaled = (255.0 / np.amax(sinogram)) * sinogram
@@ -78,6 +115,9 @@ def calculate_sinogram(input_path: str, sinogram_path: str, result_path: str,
     sinogram_resized = sinogram_image.resize(image.shape, resample=Image.NEAREST)
     sinogram_resized.save(sinogram_path)
 
+    # ---------------------------------------------------------------------------------------------------------------- #
+    # OBLICZANIE OBRAZU WYJŚCIOWEGO
+    # ---------------------------------------------------------------------------------------------------------------- #
     sinogram_f = filter_h(sinogram)
     result = np.zeros(image.shape)
     normalization_matrix = np.zeros(image.shape)
@@ -96,11 +136,24 @@ def calculate_sinogram(input_path: str, sinogram_path: str, result_path: str,
                     result[point[0]][point[1]] += sinogram_f[i][j]
                     normalization_matrix[point[0]][point[1]] += 1
 
-    sub_max = []
-    for o in result:
-        sub_max.append(max(o))
-    norm_max = max(sub_max)
+        if gradual:
+            norm_max = np.amax(result)
+            result_gradual = result.copy()
+            for x in range(result_gradual.shape[0]):
+                for y in range(result_gradual.shape[1]):
+                    if normalization_matrix[x][y] != 0:
+                        # result[x][y] = result[x][y] / normalization_matrix[x][y]
+                        result_gradual[x][y] = result_gradual[x][y] / norm_max
+                    else:
+                        result_gradual[x][y] = 0
 
+            result_gradual_path = os.path.join(output_dir, 'gradual_result', f'output{i}.png')
+            result_gradual_scaled = (255.0 / np.amax(result_gradual)) * result_gradual
+            result_gradual_scaled = result_gradual_scaled.astype(np.uint8)
+            result_gradual_image = Image.fromarray(result_gradual_scaled, mode='L')
+            result_gradual_image.save(result_gradual_path)
+
+    norm_max = max([max(o) for o in result])
     for x in range(result.shape[0]):
         for y in range(result.shape[1]):
             if normalization_matrix[x][y] != 0:
@@ -113,3 +166,5 @@ def calculate_sinogram(input_path: str, sinogram_path: str, result_path: str,
     result_scaled = result_scaled.astype(np.uint8)
     result_image = Image.fromarray(result_scaled, mode='L')
     result_image.save(result_path)
+
+    return gradual_number

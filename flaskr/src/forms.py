@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms import SubmitField, IntegerField
+from wtforms import SubmitField, IntegerField, BooleanField
 from wtforms.validators import InputRequired, NumberRange
 
 
@@ -13,4 +13,5 @@ class InputForm(FlaskForm):
                           validators=[InputRequired(), NumberRange(min=1, max=180)])
     photo = FileField("Prześlij swój plik",
                       validators=[FileRequired(), FileAllowed(['jpg', 'png', 'dcm'], 'Images or DICOM only!')])
+    gradual = BooleanField("Czy rejestrować kroki pośrednie?", default=False)
     submit = SubmitField("Prześlij")
