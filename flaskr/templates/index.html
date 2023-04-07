@@ -9,6 +9,18 @@
     <div class="container form">
         <form method="post" class="row g-3" enctype="multipart/form-data" id="photoForm">
             {{ form.hidden_tag() }}
+            <div class="col-md-4">
+                {{ form.interval.label(class_='form-label') }}
+                {{ form.interval(class_='form-control') }}
+            </div>
+            <div class="col-md-4">
+                {{ form.detectors_number.label(class_='form-label') }}
+                {{ form.detectors_number(class_='form-control') }}
+            </div>
+            <div class="col-md-4">
+                {{ form.extent.label(class_='form-label') }}
+                {{ form.extent(class_='form-control') }}
+            </div>
             <div class="col-md-6 mx-auto">
                 {{ form.photo.label(class_='form-label') }}
                 {{ form.photo(class_='form-control') }}

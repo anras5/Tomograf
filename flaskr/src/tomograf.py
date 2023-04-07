@@ -6,14 +6,33 @@ from skimage import color
 from flaskr.src.bresenham import bresenham_algorithm
 from flaskr.src.filters import filter_h
 
-# Stałe - w końcowym rozwiązaniu trzeba będzie je wyliczyć na podstawie danego obrazka albo dać do ustawienia użytkownikowi
-INTERVAL = (360 / 90) * np.pi / 180  # Co jaki kąt przesuwany jest emitter po okręgu
-DETECTORS_NUMBER = 150  # liczba detektorów
-EXTENT = 170 * np.pi / 180  # jaka jest rozpiętość kątowa detectors
 
+def calculate_sinogram(input_path: str, sinogram_path: str, result_path: str,
+                       interval: int, detectors_number: int, extent: int):
+    """Calculates sinogram from input file and saves a sinogram visualization in `sinogram_path`.
+    Then from this sinogram, calculates an output file and saves it in `result_path`.
+    Function uses the cone method.
 
-def calculate_sinogram(input_path, sinogram_path, result_path):
-    sinogram = np.zeros((int(2 * np.pi / INTERVAL), DETECTORS_NUMBER))
+    Parameters
+    ----------
+    input_path: str
+        Path of the input file
+    sinogram_path: str
+        Path of the sinogram visualization
+    result_path: str
+        Path of the output file
+    interval: int
+        The angle by which the emitter is to be moved
+    detectors_number: int
+        How many detectors will be used
+    extent: int
+        The angular span of the detectors
+    """
+
+    interval = interval * np.pi / 180  # Co jaki kąt przesuwany jest emitter po okręgu
+    extent = extent * np.pi / 180  # jaka jest rozpiętość kątowa detectors
+
+    sinogram = np.zeros((int(2 * np.pi / interval), detectors_number))
     image = imread(input_path)
     # TODO - linijka niżej czasami sprawia problemy (przy niektórych zdjęciach program daje error)
     image = color.rgb2gray(image)
@@ -21,16 +40,16 @@ def calculate_sinogram(input_path, sinogram_path, result_path):
     Y = image.shape[1] / 2  # współrzędna Y środka obrazka
     R = np.sqrt(X ** 2 + Y ** 2)  # długość promienia okręgu, po którym będzie "poruszać się" emitter
 
-    # W zewnętrznej pętli wyznaczamy kolejne pozycje emitera, będą one o 0 do 2pi z odstępem co INTERVAL
-    for emitter_idx, emitter_angle in zip(range(int(2 * np.pi / INTERVAL)), np.arange(0, 2 * np.pi, INTERVAL)):
+    # W zewnętrznej pętli wyznaczamy kolejne pozycje emitera, będą one o 0 do 2pi z odstępem co interval
+    for emitter_idx, emitter_angle in zip(range(int(2 * np.pi / interval)), np.arange(0, 2 * np.pi, interval)):
         # wyznaczamy współrzędne (x, y) emittera na podstawie wartości X, Y oraz R i kąta (emitter_angle) z danej interacji
         emitter_coordinates = [int(X + R * np.cos(emitter_angle)), int(Y + R * np.sin(emitter_angle))]
 
         # W wewnętrznej pętli wyznaczamy pozycje detectorów
-        detector_start = emitter_angle + np.pi - EXTENT / 2
-        detector_end = emitter_angle + np.pi + EXTENT / 2
-        for detector_idx, detector_angle in zip(range(DETECTORS_NUMBER),
-                                                np.arange(detector_start, detector_end, EXTENT / DETECTORS_NUMBER)):
+        detector_start = emitter_angle + np.pi - extent / 2
+        detector_end = emitter_angle + np.pi + extent / 2
+        for detector_idx, detector_angle in zip(range(detectors_number),
+                                                np.arange(detector_start, detector_end, extent / detectors_number)):
             # wyznaczamy współrzędne (x, y) detectora
             detector_coordinates = [int(X + R * np.cos(detector_angle)), int(Y + R * np.sin(detector_angle))]
 
@@ -64,9 +83,9 @@ def calculate_sinogram(input_path, sinogram_path, result_path):
     normalization_matrix = np.zeros(image.shape)
     # Wyznaczamy obraz końcowy na podstawie powstałego sinogramu
     for i in range(sinogram_f.shape[0]):
-        emitter_coordinates = [int(X + R * np.cos(INTERVAL * i)), int(Y + R * np.sin(INTERVAL * i))]
+        emitter_coordinates = [int(X + R * np.cos(interval * i)), int(Y + R * np.sin(interval * i))]
         for j in range(sinogram_f.shape[1]):
-            detector_angle = INTERVAL * i + np.pi - EXTENT / 2 + j * EXTENT / sinogram_f.shape[1]
+            detector_angle = interval * i + np.pi - extent / 2 + j * extent / sinogram_f.shape[1]
             detector_coordinates = [int(X + R * np.cos(detector_angle)), int(Y + R * np.sin(detector_angle))]
 
             line_points = list(bresenham_algorithm(emitter_coordinates[0], emitter_coordinates[1],
