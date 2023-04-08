@@ -25,3 +25,17 @@ body {
 .img-box img {
     object-fit: contain;
 }
+
+
+/*SCROLL BAR*/
+::-webkit-scrollbar {
+    display: none;
+}
+
+::-webkit-scrollbar-track {
+    display: none;
+}
+
+::-webkit-scrollbar-thumb {
+    display: none;
+}
