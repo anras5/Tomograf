@@ -6,7 +6,7 @@ The app will run on `localhost:5000`
 ### Docker
 
 ```commandline
-docker build -t tomograf
+docker build -t tomograf .
 docker run -p 5000:5000 tomograf
 ```
 
