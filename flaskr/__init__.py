@@ -51,8 +51,13 @@ def create_app():
             gradual = form.gradual.data
             dicom = form.dicom.data
 
-            patient = Patient('Filip', '1', 'M', datetime.datetime(2023, 4, 5).strftime('%Y%m%d'),
-                              'Komentarz')
+            patient = Patient(
+                form.name.data,
+                form.id.data,
+                form.sex.data,
+                form.birth_date.data.strftime("%Y%m%d"),
+                form.comment.data
+            )
 
             dicom_name = f'{patient.name}_{datetime.date.today()}.dcm'
 
