@@ -59,7 +59,7 @@
         {% endif %}
     </div>
 
-    {% if dicom_name|length > 15 %}
+    {% if dicom == 'True' %}
         <div class="container">
             <p class="mt-4">Kliknij tutaj aby pobrać plik DICOM:</p>
                 <a href="{{ url_for('download', uid=uid, dicom_name=dicom_name) }}" class="btn btn-primary">Pobierz

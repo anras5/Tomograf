@@ -67,6 +67,8 @@ def create_app():
             else:
                 # read patient from uploaded dicom
                 _, patient = read_dicom(input_path)
+
+            if filename[-4:] == '.dcm':
                 filename = 'input.jpg'
 
             dicom_name = f'{patient.name}_{datetime.date.today()}.dcm'
@@ -79,7 +81,7 @@ def create_app():
 
             return redirect(url_for('result',
                                     uid=users_uid, input_name=filename, gradual_number=gradual_number,
-                                    dicom_name=dicom_name))
+                                    dicom_name=dicom_name, dicom=dicom))
 
         return render_template("index.html", form=form, today=datetime.date.today().strftime("%Y-%m-%d"))
 
@@ -96,13 +98,14 @@ def create_app():
         uid = request.args.get('uid')
         input_name = request.args.get('input_name')
         gradual_number = request.args.get('gradual_number', type=int)
+        dicom = request.args.get('dicom', type=bool)
         dicom_name = request.args.get('dicom_name')
         if uid and input_name and gradual_number is not None:
             directory = os.path.join('flaskr', 'static', 'temporary_images', uid)
             if os.path.exists(directory):
                 return render_template('result.html',
                                        uid=uid, input_name=input_name, gradual_number=gradual_number,
-                                       dicom_name=dicom_name)
+                                       dicom_name=dicom_name, dicom=dicom)
         flash("Brak odpowiednich parametrów", 'error')
         return redirect(url_for('home'))
 

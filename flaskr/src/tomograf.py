@@ -69,9 +69,7 @@ def calculate_sinogram(input_path: str, output_dir: str,
     gradual_number = 0
     sinogram = np.zeros((int(2 * np.pi / interval), detectors_number))
 
-
     # jeżeli plik to DICOM, wczytujemy z niego dane
-
     if input_path[-4:] == '.dcm':
         input_jpg_path = os.path.join(output_dir, 'input.jpg')
         image, _ = read_dicom(input_path)
@@ -81,7 +79,6 @@ def calculate_sinogram(input_path: str, output_dir: str,
         image_image.save(input_jpg_path)
     else:
         image = imread(input_path)
-        # image = color.rgb2gray(image)
         try:
             image = color.rgb2gray(image)
         except ValueError:
