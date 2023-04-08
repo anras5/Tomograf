@@ -59,6 +59,14 @@
         {% endif %}
     </div>
 
+    {% if dicom_name %}
+        <div class="container">
+            <p class="mt-4">Kliknij tutaj aby pobrać plik DICOM:</p>
+                <a href="{{ url_for('download', uid=uid, dicom_name=dicom_name) }}" class="btn btn-primary">Pobierz
+                    DICOM</a>
+        </div>
+    {% endif %}
+
     <p class="mt-5">Aby przesłać kolejny obraz, kliknij poniższy przycisk:</p>
     <a href="{{ url_for('home') }}" class="btn btn-success">Powrót</a>
 
@@ -66,16 +74,24 @@
 
 {% block js %}
     {% if gradual_number %}
-    <script>
-        let slider = document.getElementById("stepRange");
-        let sliderValue = document.getElementById("sliderValue");
-        let sinogramImg = document.getElementById("sinogramImg");
-        let outputImg = document.getElementById("outputImg");
-        slider.oninput = function () {
-            sinogramImg.src = "{{ url_for('static', filename='temporary_images/' + uid + '/gradual_sinogram/sinogram') }}" + this.value + ".png";
-            outputImg.src = "{{ url_for('static', filename='temporary_images/' + uid + '/gradual_result/output') }}" + this.value + '.png';
-            sliderValue.innerHTML = this.value
-        }
-    </script>
+        <script>
+            let slider = document.getElementById("stepRange");
+            let sliderValue = document.getElementById("sliderValue");
+            let sinogramImg = document.getElementById("sinogramImg");
+            let outputImg = document.getElementById("outputImg");
+            slider.oninput = function () {
+                sinogramImg.src = "{{ url_for('static', filename='temporary_images/' + uid + '/gradual_sinogram/sinogram') }}" + this.value + ".png";
+                outputImg.src = "{{ url_for('static', filename='temporary_images/' + uid + '/gradual_result/output') }}" + this.value + '.png';
+                sliderValue.innerHTML = this.value
+            }
+        </script>
+    {% endif %}
+
+    {% if dicom_name %}
+        <script>
+            function goBack() {
+                window.history.back();
+            }
+        </script>
     {% endif %}
 {% endblock %}

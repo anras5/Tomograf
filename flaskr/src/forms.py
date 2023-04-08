@@ -14,4 +14,5 @@ class InputForm(FlaskForm):
     photo = FileField("Prześlij swój plik",
                       validators=[FileRequired(), FileAllowed(['jpg', 'png', 'dcm'], 'Images or DICOM only!')])
     gradual = BooleanField("Czy rejestrować kroki pośrednie?", default=False)
+    dicom = BooleanField("Czy wygenerować plik dicom?", default=False)
     submit = SubmitField("Prześlij")

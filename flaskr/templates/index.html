@@ -30,8 +30,14 @@
                 </div>
             </div>
             <div class="row my-3">
-                {{ form.gradual.label(class_='form-label') }}
-                {{ form.gradual() }}
+                <div class="col-md-6">
+                    {{ form.gradual.label(class_='form-label') }} <br>
+                    {{ form.gradual() }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.dicom.label(class_='form-label') }} <br>
+                    {{ form.dicom() }}
+                </div>
             </div>
 
             <div class="row my-2">

@@ -1,3 +1,4 @@
+import datetime
 import os.path
 
 import numpy as np
@@ -6,12 +7,17 @@ from PIL import Image
 from skimage import color
 
 from flaskr.src.bresenham import bresenham_algorithm
+from flaskr.src.dicom import Patient, save_dicom
 from flaskr.src.filters import filter_h
 
 
 def calculate_sinogram(input_path: str, output_dir: str,
                        interval: int, detectors_number: int, extent: int,
-                       gradual: bool):
+                       gradual: bool,
+                       dicom: bool = False,
+                       patient: Patient = None,
+                       dicom_name: str = ''
+                       ):
     """Calculates sinogram from input file and saves a sinogram visualization in `sinogram_path`.
     Then from this sinogram, calculates an output file and saves it in `result_path`.
     Function uses the cone method.
@@ -31,6 +37,12 @@ def calculate_sinogram(input_path: str, output_dir: str,
         The angular span of the detectors
     gradual: bool
         if True every step will be saved in a separate file
+    dicom: bool, optional
+        if True, a .dcm file will be created with data provided in
+    patient: Patient, optional
+        data about patient, should not be empty if `dicom` is set to True
+    dicom_name: str
+        dicom filename
 
     Returns
     -------
@@ -166,5 +178,12 @@ def calculate_sinogram(input_path: str, output_dir: str,
     result_scaled = result_scaled.astype(np.uint8)
     result_image = Image.fromarray(result_scaled, mode='L')
     result_image.save(result_path)
+
+    # zapisujemy plik wyjściowy w formacie dicom
+    if dicom:
+        dicom_path = os.path.join(output_dir, dicom_name)
+        save_dicom(result_scaled, dicom_path,
+                   patient.name, patient.id, patient.sex, patient.birth_date, datetime.date.today(),
+                   patient.comments)
 
     return gradual_number
