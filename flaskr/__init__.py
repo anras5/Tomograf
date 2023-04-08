@@ -66,7 +66,7 @@ def create_app():
                                     uid=users_uid, input_name=filename, gradual_number=gradual_number,
                                     dicom_name=dicom_name))
 
-        return render_template("index.html", form=form)
+        return render_template("index.html", form=form, today=datetime.date.today().strftime("%Y-%m-%d"))
 
     @app.route("/download")
     def download():

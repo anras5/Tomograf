@@ -10,15 +10,15 @@
         <form method="post" class="row g-3" enctype="multipart/form-data" id="photoForm">
             {{ form.hidden_tag() }}
             <div class="row my-3">
-                <div class="col-md-4">
+                <div class="col-lg-4">
                     {{ form.interval.label(class_='form-label') }}
                     {{ form.interval(class_='form-control', value=5) }}
                 </div>
-                <div class="col-md-4">
+                <div class="col-lg-4">
                     {{ form.detectors_number.label(class_='form-label') }}
                     {{ form.detectors_number(class_='form-control', value=150) }}
                 </div>
-                <div class="col-md-4">
+                <div class="col-lg-4">
                     {{ form.extent.label(class_='form-label') }}
                     {{ form.extent(class_='form-control', value=170) }}
                 </div>
@@ -37,6 +37,36 @@
                 <div class="col-md-6">
                     {{ form.dicom.label(class_='form-label') }} <br>
                     {{ form.dicom() }}
+                </div>
+            </div>
+
+
+            <div class="col d-none" id="patient-data">
+                <hr>
+                <p>Podaj dane dotyczące pacjenta i badania:</p>
+                <div class="row my-2">
+                    <div class="col-md-4">
+                        {{ form.name.label(class_='form-label') }}
+                        {{ form.name(class_='form-control', value='') }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.id.label(class_='form-label') }}
+                        {{ form.id(class_='form-control', value='') }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.sex.label(class_='form-label') }}
+                        {{ form.sex(class_='form-control', value='') }}
+                    </div>
+                </div>
+                <div class="row my-4">
+                    <div class="col-md-3">
+                        {{ form.birth_date.label(class_='form-label') }}
+                        {{ form.birth_date(class_='form-control', value=today) }}
+                    </div>
+                    <div class="col-md-9">
+                        {{ form.comment.label(class_='form-label') }}
+                        {{ form.comment(class_='form-control', value='') }}
+                    </div>
                 </div>
             </div>
 
@@ -62,5 +92,16 @@
             document.getElementById("spinner").classList.remove("d-none");
             document.getElementById("submit-btn").classList.add("d-none");
         });
+
+        let dicom = document.querySelector("input[name='dicom']");
+        let patient = document.getElementById('patient-data');
+        dicom.addEventListener("change", function () {
+            if(this.checked) {
+                patient.classList.remove("d-none");
+            } else {
+                patient.classList.add("d-none");
+            }
+        })
+
     </script>
 {% endblock %}
