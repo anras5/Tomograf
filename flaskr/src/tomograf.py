@@ -191,7 +191,7 @@ def calculate_sinogram(input_path: str, output_dir: str,
             for x in range(len(image)):
                 for y in range(len(image[x])):
                     mse_sum += (result[x][y] - image[x][y]) ** 2
-            mse.append(mse_sum / image.size())
+            mse.append(mse_sum / image.size)
 
 
 
