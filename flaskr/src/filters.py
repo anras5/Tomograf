@@ -8,13 +8,21 @@ def filter_h(sinogram):
     for i in range(0, shape[0]):
         filtered_sinogram.append(
             sig.convolve(sinogram[i],
-                         [-4 / (9 * np.pi ** 2),
+                         [-4 / (49 * np.pi ** 2),
+                          0,
+                          -4 / (25 * np.pi ** 2),
+                          0,
+                          -4 / (9 * np.pi ** 2),
                           0,
                           -4 / np.pi ** 2,
                           1,
                           -4 / np.pi ** 2,
                           0,
-                          -4 / (9 * np.pi ** 2)],
+                          -4 / (9 * np.pi ** 2),
+                          0,
+                          -4 / (25 * np.pi ** 2),
+                          0,
+                          -4 / (49 * np.pi ** 2)],
                          mode='same', method='direct')
         )
 

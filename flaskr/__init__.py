@@ -50,6 +50,7 @@ def create_app():
             extent = form.extent.data
             gradual = form.gradual.data
             dicom = form.dicom.data
+            filtered = form.filtered.data
 
             patient = Patient(
                 form.name.data,
@@ -65,7 +66,7 @@ def create_app():
             gradual_number = calculate_sinogram(input_path, users_directory_path,
                                                 interval, detectors_number, extent,
                                                 gradual,
-                                                dicom, patient, dicom_name)
+                                                dicom, filtered, patient, dicom_name)
 
             return redirect(url_for('result',
                                     uid=users_uid, input_name=filename, gradual_number=gradual_number,

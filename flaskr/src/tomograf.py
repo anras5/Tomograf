@@ -15,6 +15,7 @@ def calculate_sinogram(input_path: str, output_dir: str,
                        interval: int, detectors_number: int, extent: int,
                        gradual: bool,
                        dicom: bool = False,
+                       filtered: bool = False,
                        patient: Patient = None,
                        dicom_name: str = ''
                        ):
@@ -39,6 +40,8 @@ def calculate_sinogram(input_path: str, output_dir: str,
         if True every step will be saved in a separate file
     dicom: bool, optional
         if True, a .dcm file will be created with data provided in
+    filtered: bool, optional
+        if True, there will be used a filter on sinogram
     patient: Patient, optional
         data about patient, should not be empty if `dicom` is set to True
     dicom_name: str
@@ -67,7 +70,13 @@ def calculate_sinogram(input_path: str, output_dir: str,
     sinogram = np.zeros((int(2 * np.pi / interval), detectors_number))
     image = imread(input_path)
     # TODO - linijka niżej czasami sprawia problemy (przy niektórych zdjęciach program daje error)
-    image = color.rgb2gray(image)
+    # image = color.rgb2gray(image)
+    try:
+        image = color.rgb2gray(image)
+    except ValueError:
+        image = image
+
+
     X = image.shape[0] / 2  # współrzędna X środka obrazka
     Y = image.shape[1] / 2  # współrzędna Y środka obrazka
     R = np.sqrt(X ** 2 + Y ** 2)  # długość promienia okręgu, po którym będzie "poruszać się" emitter
@@ -130,7 +139,12 @@ def calculate_sinogram(input_path: str, output_dir: str,
     # ---------------------------------------------------------------------------------------------------------------- #
     # OBLICZANIE OBRAZU WYJŚCIOWEGO
     # ---------------------------------------------------------------------------------------------------------------- #
-    sinogram_f = filter_h(sinogram)
+    mse = []
+
+    if filtered:
+        sinogram_f = filter_h(sinogram)
+    else:
+        sinogram_f = sinogram
     result = np.zeros(image.shape)
     normalization_matrix = np.zeros(image.shape)
     # Wyznaczamy obraz końcowy na podstawie powstałego sinogramu
@@ -164,6 +178,15 @@ def calculate_sinogram(input_path: str, output_dir: str,
             result_gradual_scaled = result_gradual_scaled.astype(np.uint8)
             result_gradual_image = Image.fromarray(result_gradual_scaled, mode='L')
             result_gradual_image.save(result_gradual_path)
+
+            # Liczymy błąd średniokwadratowy dla danej iteracji
+            mse_sum = 0
+            for x in range(len(image)):
+                for y in range(len(image[x])):
+                    mse_sum += (result[x][y] - image[x][y]) ** 2
+            mse.append(mse_sum / image.size())
+
+
 
     norm_max = max([max(o) for o in result])
     for x in range(result.shape[0]):

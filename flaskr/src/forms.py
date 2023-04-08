@@ -17,6 +17,7 @@ class InputForm(FlaskForm):
     gradual = BooleanField("Czy rejestrować kroki pośrednie?", default=False)
 
     dicom = BooleanField("Czy wygenerować plik dicom?", default=False)
+    filtered = BooleanField("Czy użyć filtrowania do poprawy jakości wyniku?", default=False)
     name = StringField("Podaj imię pacjenta")
     id = StringField("Podaj ID pacjenta")
     sex = StringField("Podaj płeć pacjenta")

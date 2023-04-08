@@ -35,6 +35,10 @@
                     {{ form.gradual() }}
                 </div>
                 <div class="col-md-6">
+                    {{ form.filtered.label(class_='form-label') }} <br>
+                    {{ form.filtered() }}
+                </div>
+                <div class="col-md-6">
                     {{ form.dicom.label(class_='form-label') }} <br>
                     {{ form.dicom() }}
                 </div>
