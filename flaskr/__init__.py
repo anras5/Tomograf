@@ -5,7 +5,7 @@ import uuid
 from flask import Flask, render_template, redirect, url_for, request, flash, send_file
 from werkzeug.utils import secure_filename
 
-from flaskr.src.dicom import Patient
+from flaskr.src.dicom import Patient, read_dicom
 from flaskr.src.forms import InputForm
 from flaskr.src.tomograf import calculate_sinogram
 
@@ -51,13 +51,22 @@ def create_app():
             gradual = form.gradual.data
             dicom = form.dicom.data
 
-            patient = Patient(
-                form.name.data,
-                form.id.data,
-                form.sex.data,
-                form.birth_date.data.strftime("%Y%m%d"),
-                form.comment.data
-            )
+            # -------------------------------------------------------------------------------------------------------- #
+            # HANDLE PATIENT DATA
+            # read patient from form (if we want to create dicom or uploaded file is not dicom)
+            if dicom or filename[-4:] != '.dcm':
+                patient = Patient(
+                    form.name.data,
+                    form.id.data,
+                    form.sex.data,
+                    form.birth_date.data.strftime("%Y%m%d"),
+                    datetime.date.today().strftime("%Y%m%d"),
+                    form.comment.data
+                )
+            else:
+                # read patient from uploaded dicom
+                _, patient = read_dicom(input_path)
+                filename = 'input.jpg'
 
             dicom_name = f'{patient.name}_{datetime.date.today()}.dcm'
 

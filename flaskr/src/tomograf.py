@@ -7,7 +7,7 @@ from PIL import Image
 from skimage import color
 
 from flaskr.src.bresenham import bresenham_algorithm
-from flaskr.src.dicom import Patient, save_dicom
+from flaskr.src.dicom import Patient, save_dicom, read_dicom
 from flaskr.src.filters import filter_h
 
 
@@ -65,9 +65,19 @@ def calculate_sinogram(input_path: str, output_dir: str,
     # inicjalizacja zmiennych używanych później
     gradual_number = 0
     sinogram = np.zeros((int(2 * np.pi / interval), detectors_number))
-    image = imread(input_path)
-    # TODO - linijka niżej czasami sprawia problemy (przy niektórych zdjęciach program daje error)
-    image = color.rgb2gray(image)
+    # jeżeli plik to DICOM, wczytujemy z niego dane
+
+    if input_path[-4:] == '.dcm':
+        input_jpg_path = os.path.join(output_dir, 'input.jpg')
+        image, _ = read_dicom(input_path)
+        image_scaled = (255.0 / np.amax(image)) * image
+        image_scaled = image_scaled.astype(np.uint8)
+        image_image = Image.fromarray(image_scaled, mode='L')
+        image_image.save(input_jpg_path)
+    else:
+        image = imread(input_path)
+        # TODO - linijka niżej czasami sprawia problemy (przy niektórych zdjęciach program daje error)
+        image = color.rgb2gray(image)
     X = image.shape[0] / 2  # współrzędna X środka obrazka
     Y = image.shape[1] / 2  # współrzędna Y środka obrazka
     R = np.sqrt(X ** 2 + Y ** 2)  # długość promienia okręgu, po którym będzie "poruszać się" emitter
@@ -183,7 +193,7 @@ def calculate_sinogram(input_path: str, output_dir: str,
     if dicom:
         dicom_path = os.path.join(output_dir, dicom_name)
         save_dicom(result_scaled, dicom_path,
-                   patient.name, patient.id, patient.sex, patient.birth_date, datetime.date.today(),
+                   patient.name, patient.id, patient.sex, patient.birth_date, patient.study_date,
                    patient.comments)
 
     return gradual_number
