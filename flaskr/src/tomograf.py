@@ -224,4 +224,4 @@ def calculate_sinogram(input_path: str, output_dir: str,
         writer = csv.writer(csv_file)
         writer.writerows(mse)
 
-    return gradual_number
+    return gradual_number, mse[-1][1]

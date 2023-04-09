@@ -74,14 +74,15 @@ def create_app():
             dicom_name = f'{patient.name}_{datetime.date.today()}.dcm'
 
             # create sinogram and output files
-            gradual_number = calculate_sinogram(input_path, users_directory_path,
+            gradual_number, rmse = calculate_sinogram(input_path, users_directory_path,
                                                 interval, detectors_number, extent,
                                                 gradual,
                                                 dicom, filtered, patient, dicom_name)
 
+            print(rmse)
             return redirect(url_for('result',
                                     uid=users_uid, input_name=filename, gradual_number=gradual_number,
-                                    dicom_name=dicom_name, dicom=dicom))
+                                    dicom_name=dicom_name, dicom=dicom, rmse=rmse))
 
         return render_template("index.html", form=form, today=datetime.date.today().strftime("%Y-%m-%d"))
 
@@ -100,12 +101,13 @@ def create_app():
         gradual_number = request.args.get('gradual_number', type=int)
         dicom = request.args.get('dicom')
         dicom_name = request.args.get('dicom_name')
+        rmse = request.args.get('rmse', type=float)
         if uid and input_name and gradual_number is not None:
             directory = os.path.join('flaskr', 'static', 'temporary_images', uid)
             if os.path.exists(directory):
                 return render_template('result.html',
                                        uid=uid, input_name=input_name, gradual_number=gradual_number,
-                                       dicom_name=dicom_name, dicom=dicom)
+                                       dicom_name=dicom_name, dicom=dicom, rmse=rmse)
         flash("Brak odpowiednich parametrów", 'error')
         return redirect(url_for('home'))
 
