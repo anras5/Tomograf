@@ -98,7 +98,7 @@ def create_app():
         uid = request.args.get('uid')
         input_name = request.args.get('input_name')
         gradual_number = request.args.get('gradual_number', type=int)
-        dicom = request.args.get('dicom', type=bool)
+        dicom = request.args.get('dicom')
         dicom_name = request.args.get('dicom_name')
         if uid and input_name and gradual_number is not None:
             directory = os.path.join('flaskr', 'static', 'temporary_images', uid)

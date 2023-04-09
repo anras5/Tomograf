@@ -2,9 +2,11 @@ import datetime
 import os.path
 
 import numpy as np
+import csv
 from matplotlib.image import imread
 from PIL import Image
 from skimage import color
+
 
 from flaskr.src.bresenham import bresenham_algorithm
 from flaskr.src.dicom import Patient, save_dicom, read_dicom
@@ -82,7 +84,7 @@ def calculate_sinogram(input_path: str, output_dir: str,
         try:
             image = color.rgb2gray(image)
         except ValueError:
-            image = image
+            pass
 
     X = image.shape[0] / 2  # współrzędna X środka obrazka
     Y = image.shape[1] / 2  # współrzędna Y środka obrazka
@@ -146,7 +148,7 @@ def calculate_sinogram(input_path: str, output_dir: str,
     # ---------------------------------------------------------------------------------------------------------------- #
     # OBLICZANIE OBRAZU WYJŚCIOWEGO
     # ---------------------------------------------------------------------------------------------------------------- #
-    mse = []
+    mse = [ ['Iteration', 'RMSE'] ]
 
     if filtered:
         sinogram_f = filter_h(sinogram)
@@ -186,12 +188,12 @@ def calculate_sinogram(input_path: str, output_dir: str,
             result_gradual_image = Image.fromarray(result_gradual_scaled, mode='L')
             result_gradual_image.save(result_gradual_path)
 
-            # Liczymy błąd średniokwadratowy dla danej iteracji
-            mse_sum = 0
-            for x in range(len(image)):
-                for y in range(len(image[x])):
-                    mse_sum += (result[x][y] - image[x][y]) ** 2
-            mse.append(mse_sum / image.size)
+        # Liczymy błąd średniokwadratowy dla danej iteracji
+        mse_sum = 0
+        for x in range(len(image)):
+            for y in range(len(image[x])):
+                mse_sum += (result[x][y] - image[x][y]) ** 2
+        mse.append([i, (mse_sum / image.size) ** (1/2)])
 
 
 
@@ -215,5 +217,11 @@ def calculate_sinogram(input_path: str, output_dir: str,
         save_dicom(result_scaled, dicom_path,
                    patient.name, patient.id, patient.sex, patient.birth_date, patient.study_date,
                    patient.comments)
+
+    # zapisujemy plik .csv
+    rmse_path = os.path.join(output_dir, 'rmse.csv')
+    with open(rmse_path, 'w', newline='') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerows(mse)
 
     return gradual_number
