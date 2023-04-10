@@ -1,16 +1,16 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms import SubmitField, IntegerField, BooleanField, StringField, DateField
+from wtforms import SubmitField, IntegerField, BooleanField, StringField, DateField, DecimalField, FloatField
 from wtforms.validators import InputRequired, NumberRange, DataRequired, Length
 
 
 class InputForm(FlaskForm):
-    interval = IntegerField("Kąt przesuwania emitera [°]?",
-                            validators=[InputRequired(), NumberRange(min=1, max=90)])
+    interval = FloatField("Kąt przesuwania emitera [°]?",
+                            validators=[InputRequired()])
     detectors_number = IntegerField("Liczba detektorów",
                                     validators=[InputRequired(), NumberRange(min=1)])
     extent = IntegerField("Rozpiętość kątowa detektorów",
-                          validators=[InputRequired(), NumberRange(min=1, max=180)])
+                          validators=[InputRequired(), NumberRange(min=1)])
     photo = FileField("Prześlij plik",
                       validators=[FileRequired(), FileAllowed(['jpg', 'png', 'dcm'], 'Images or DICOM only!')])
 

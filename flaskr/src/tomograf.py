@@ -64,7 +64,7 @@ def calculate_sinogram(input_path: str, output_dir: str,
         os.makedirs(os.path.join(output_dir, 'gradual_result'))
 
     # zmieniamy parametry przekazane w funkcji ze stopni na radiany
-    interval = interval * np.pi / 180  # Co jaki kąt przesuwany jest emitter po okręgu
+    interval = interval * np.pi / 180 # Co jaki kąt przesuwany jest emitter po okręgu
     extent = extent * np.pi / 180  # jaka jest rozpiętość kątowa detectors
 
     # inicjalizacja zmiennych używanych później
@@ -177,8 +177,8 @@ def calculate_sinogram(input_path: str, output_dir: str,
             for x in range(result_gradual.shape[0]):
                 for y in range(result_gradual.shape[1]):
                     if normalization_matrix[x][y] != 0:
-                        # result[x][y] = result[x][y] / normalization_matrix[x][y]
-                        result_gradual[x][y] = result_gradual[x][y] / norm_max
+                        result_gradual[x][y] = result_gradual[x][y] / normalization_matrix[x][y]
+                        # result_gradual[x][y] = result_gradual[x][y] / norm_max
                     else:
                         result_gradual[x][y] = 0
 
@@ -188,12 +188,12 @@ def calculate_sinogram(input_path: str, output_dir: str,
             result_gradual_image = Image.fromarray(result_gradual_scaled, mode='L')
             result_gradual_image.save(result_gradual_path)
 
-        # Liczymy błąd średniokwadratowy dla danej iteracji
-        mse_sum = 0
-        for x in range(len(image)):
-            for y in range(len(image[x])):
-                mse_sum += (result[x][y] - image[x][y]) ** 2
-        mse.append([i, (mse_sum / image.size) ** (1/2)])
+            # Liczymy błąd średniokwadratowy dla danej iteracji
+            mse_sum = 0
+            for x in range(len(image)):
+                for y in range(len(image[x])):
+                    mse_sum += (result_gradual[x][y] - image[x][y]) ** 2
+            mse.append([i, (mse_sum / image.size) ** (1/2)])
 
 
 
@@ -201,10 +201,17 @@ def calculate_sinogram(input_path: str, output_dir: str,
     for x in range(result.shape[0]):
         for y in range(result.shape[1]):
             if normalization_matrix[x][y] != 0:
-                # result[x][y] = result[x][y] / normalization_matrix[x][y]
-                result[x][y] = result[x][y] / norm_max
+                result[x][y] = result[x][y] / normalization_matrix[x][y]
+                # result[x][y] = result[x][y] / norm_max
             else:
                 result[x][y] = 0
+
+    # Liczymy błąd średniokwadratowy dla końcowego obrazu
+    mse_sum = 0
+    for x in range(len(image)):
+        for y in range(len(image[x])):
+            mse_sum += (result[x][y] - image[x][y]) ** 2
+    mse_final = (mse_sum / image.size) ** (1 / 2)
 
     result_scaled = (255.0 / np.amax(result)) * result
     result_scaled = result_scaled.astype(np.uint8)
@@ -224,4 +231,4 @@ def calculate_sinogram(input_path: str, output_dir: str,
         writer = csv.writer(csv_file)
         writer.writerows(mse)
 
-    return gradual_number, mse[-1][1]
+    return gradual_number, mse_final
