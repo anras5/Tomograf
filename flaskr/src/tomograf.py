@@ -206,12 +206,13 @@ def calculate_sinogram(input_path: str, output_dir: str,
             else:
                 result[x][y] = 0
 
-    # Liczymy błąd średniokwadratowy dla końcowego obrazu
-    mse_sum = 0
-    for x in range(len(image)):
-        for y in range(len(image[x])):
-            mse_sum += (result[x][y] - image[x][y]) ** 2
-    mse_final = (mse_sum / image.size) ** (1 / 2)
+    if not gradual:
+        # Liczymy błąd średniokwadratowy dla końcowego obrazu
+        mse_sum = 0
+        for x in range(len(image)):
+            for y in range(len(image[x])):
+                mse_sum += (result[x][y] - image[x][y]) ** 2
+        mse.append([1, (mse_sum / image.size) ** (1 / 2)])
 
     result_scaled = (255.0 / np.amax(result)) * result
     result_scaled = result_scaled.astype(np.uint8)
@@ -231,4 +232,4 @@ def calculate_sinogram(input_path: str, output_dir: str,
         writer = csv.writer(csv_file)
         writer.writerows(mse)
 
-    return gradual_number, mse_final
+    return gradual_number, mse[-1][1]
