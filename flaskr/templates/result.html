@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+    <h1 class="mt-2">TOMOGRAF</h1>
+
+    <p>RMSE: {{ rmse }}</p>
+
+    <p><b>Wynik użycia tomografu:</b></p>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <p>Obraz wejściowy:</p>
+                <div class="img-box">
+                    <img src="{{ url_for('static', filename='temporary_images/' + uid + '/' + input_name) }}"
+                         alt="users photo"
+                         class="img-fluid rounded">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <p>Wizualizacja sinogramu:</p>
+                <div class="img-box">
+                    {% if gradual_number %}
+                        <img src="{{ url_for('static', filename='temporary_images/' + uid + '/gradual_sinogram/sinogram' + 0|string + '.png') }}"
+                             alt="sinogram photo"
+                             id="sinogramImg"
+                             class="img-fluid rounded">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='temporary_images/' + uid + '/sinogram.png') }}"
+                             alt="sinogram photo"
+                             class="img-fluid rounded">
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <p>Obraz wyjściowy:</p>
+                <div class="img-box">
+                    {% if gradual_number %}
+                        <img src="{{ url_for('static', filename='temporary_images/' + uid + '/gradual_result/output' + 0|string + '.png') }}"
+                             alt="result photo"
+                             id="outputImg"
+                             class="img-fluid rounded">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='temporary_images/' + uid + '/output.png') }}"
+                             alt="result photo"
+                             class="img-fluid rounded">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% if gradual_number %}
+            <div class="row">
+                <div class="mt-5">
+                    <p>Wybierz krok:</p>
+                    <input type="range" min="0" max="{{ gradual_number - 1 }}" step="1" value="0" id="stepRange"
+                           class="form-control-range">
+                    <p>Aktualny krok: <span id="sliderValue">0</span></p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if dicom == 'True' %}
+        <div class="container">
+            <p class="mt-4">Kliknij tutaj aby pobrać plik DICOM:</p>
+                <a href="{{ url_for('download', uid=uid, dicom_name=dicom_name) }}" class="btn btn-primary">Pobierz
+                    DICOM</a>
+        </div>
+    {% endif %}
+
+    <p class="mt-5">Aby przesłać kolejny obraz, kliknij poniższy przycisk:</p>
+    <a href="{{ url_for('home') }}" class="btn btn-success">Powrót</a>
+
+{% endblock %}
+
+{% block js %}
+    {% if gradual_number %}
+        <script>
+            let slider = document.getElementById("stepRange");
+            let sliderValue = document.getElementById("sliderValue");
+            let sinogramImg = document.getElementById("sinogramImg");
+            let outputImg = document.getElementById("outputImg");
+            slider.oninput = function () {
+                sinogramImg.src = "{{ url_for('static', filename='temporary_images/' + uid + '/gradual_sinogram/sinogram') }}" + this.value + ".png";
+                outputImg.src = "{{ url_for('static', filename='temporary_images/' + uid + '/gradual_result/output') }}" + this.value + '.png';
+                sliderValue.innerHTML = this.value
+            }
+        </script>
+    {% endif %}
+
+    {% if dicom_name %}
+        <script>
+            function goBack() {
+                window.history.back();
+            }
+        </script>
+    {% endif %}
+{% endblock %}
