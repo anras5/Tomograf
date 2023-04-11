@@ -5,9 +5,15 @@ The app will run on `localhost:5000`
 
 ### Docker
 
+#### docker
 ```commandline
 docker build -t tomograf .
 docker run -p 5000:5000 tomograf
+```
+
+#### docker compose
+```commandline
+docker compose up --build
 ```
 
 ### Locally
