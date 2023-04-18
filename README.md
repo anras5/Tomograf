@@ -33,3 +33,12 @@ source venv/bin/activate
 pip install -r requirements.txt
 flask --app flaskr run --host="0.0.0.0"
 ```
+
+## How does the app look like
+
+### Home page
+![home](screenshots/home.png)
+![home2](screenshots/home_expand.png)
+
+### Results page
+![results](screenshots/results.png)
